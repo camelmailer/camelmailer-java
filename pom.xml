@@ -157,6 +157,15 @@
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>
+              <!-- Without this a deployment stops in the portal as
+                   "validated" and waits for someone to press Publish. A
+                   release here is already gated on a green suite and on the
+                   tag matching the version, so the extra click adds a place
+                   to forget rather than a decision. -->
+              <autoPublish>true</autoPublish>
+              <!-- Fail the build if the portal rejects the deployment,
+                   instead of reporting success and leaving it stuck. -->
+              <waitUntil>published</waitUntil>
             </configuration>
           </plugin>
         </plugins>

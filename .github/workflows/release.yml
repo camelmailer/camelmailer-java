@@ -22,6 +22,16 @@ jobs:
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
+      - name: Refuse a tag that disagrees with the project version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(mvn --batch-mode --quiet -DforceStdout \
+            help:evaluate -Dexpression=project.version)"
+          if [ "$tag" != "$version" ]; then
+            echo "tag $GITHUB_REF_NAME does not match project.version $version" >&2
+            exit 1
+          fi
+
       - name: Verify
         run: mvn --batch-mode --no-transfer-progress verify
 
