@@ -10,7 +10,7 @@
   <packaging>jar</packaging>
 
   <name>camelmailer-java</name>
-  <description>Java SDK for the CamelMailer transactional email API</description>
+  <description>Java SDK for the Camelmailer transactional email API</description>
   <url>https://github.com/camelmailer/camelmailer-java</url>
 
   <licenses>
@@ -23,7 +23,7 @@
 
   <developers>
     <developer>
-      <name>CamelMailer contributors</name>
+      <name>Camelmailer contributors</name>
       <url>https://camelmailer.com</url>
     </developer>
   </developers>

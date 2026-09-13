@@ -3,8 +3,8 @@
 [![CI](https://github.com/camelmailer/camelmailer-java/actions/workflows/ci.yml/badge.svg)](https://github.com/camelmailer/camelmailer-java/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-CamelMailer's official Java SDK — send transactional email via the
-[CamelMailer](https://camelmailer.com) API.
+Camelmailer's official Java SDK — send transactional email via the
+[Camelmailer](https://camelmailer.com) API.
 
 Java 17+. One runtime dependency (Jackson databind); HTTP via the JDK's
 `java.net.http`.
