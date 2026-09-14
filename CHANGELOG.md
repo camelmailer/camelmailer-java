@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-14
+
+### Fixed
+
+- `inbound` retry and bypass read `queued`. The endpoint answers with
+  `requeued`, so both returned false and no error whatever happened. They
+  also expose the `message` the response carries.
+- The subscriber types carried a `name`. The endpoint takes an address and a
+  status; a name was silently dropped, so the field promised something the
+  API does not store.
+
 ## [0.2.0] - 2026-09-14
 
 ### Added
@@ -43,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dmarc()`: `summary`, `reports`, `report`.
 - Typed, unchecked `CamelMailerException` with stable API error `code` and HTTP `statusCode`.
 
-[Unreleased]: https://github.com/camelmailer/camelmailer-java/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/camelmailer/camelmailer-java/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/camelmailer/camelmailer-java/releases/tag/v0.2.1
 [0.2.0]: https://github.com/camelmailer/camelmailer-java/releases/tag/v0.2.0
 [0.1.0]: https://github.com/camelmailer/camelmailer-java/releases/tag/v0.1.0

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.camelmailer.inbound.InboundList;
 import com.camelmailer.inbound.ListInboundOptions;
+import com.camelmailer.inbound.RequeueResult;
 import com.camelmailer.logs.LogList;
 import com.camelmailer.logs.TagCount;
 import java.util.List;
@@ -37,12 +38,16 @@ class InboundLogsTest {
   @Test
   void inboundRetryAndBypass() {
     try (MockServer server = new MockServer()) {
-      server.enqueueData("{\"queued\":true}");
-      assertTrue(server.client().inbound().retry(55).queued());
+      // The endpoint answers with "requeued", and carries the message.
+      String body = "{\"requeued\":true,\"message\":{\"id\":55,\"status\":\"Pending\"}}";
+      server.enqueueData(body);
+      RequeueResult retried = server.client().inbound().retry(55);
+      assertTrue(retried.requeued());
+      assertEquals(55L, retried.message().id());
       assertEquals("/api/v2/server/inbound/55/retry", server.takeRequest().path());
 
-      server.enqueueData("{\"queued\":true}");
-      assertTrue(server.client().inbound().bypass(55).queued());
+      server.enqueueData(body);
+      assertTrue(server.client().inbound().bypass(55).requeued());
       assertEquals("/api/v2/server/inbound/55/bypass", server.takeRequest().path());
     }
   }

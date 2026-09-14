@@ -178,7 +178,7 @@ list is the audience.
 ```java
 client.subscribers().list("newsletter");
 client.subscribers().add("newsletter",
-    SubscriberRequest.builder().address("ada@example.com").name("Ada").build());
+    SubscriberRequest.builder().address("ada@example.com").build());
 client.subscribers().importAddresses("newsletter",
     List.of("ada@example.com", "grace@example.com"));
 client.subscribers().complaint("newsletter", "ada@example.com");  // suppress + unsubscribe
@@ -209,8 +209,8 @@ client.layouts().delete("default");
 InboundList held = client.inbound().list(
     ListInboundOptions.builder().status("held").build());
 client.inbound().get(55);
-client.inbound().retry(55);    // back on the delivery queue
-client.inbound().bypass(55);   // release past the hold
+client.inbound().retry(55).requeued();    // back on the delivery queue
+client.inbound().bypass(55).requeued();   // release past the hold
 ```
 
 ### Logs
