@@ -8,12 +8,10 @@ package com.camelmailer.subscribers;
 public final class SubscriberRequest {
 
   private final String address;
-  private final String name;
   private final String status;
 
   private SubscriberRequest(Builder builder) {
     this.address = builder.address;
-    this.name = builder.name;
     this.status = builder.status;
   }
 
@@ -36,15 +34,6 @@ public final class SubscriberRequest {
   }
 
   /**
-   * Returns the display name.
-   *
-   * @return the display name, or {@code null} when unset
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
    * Returns {@code subscribed} (default) or {@code unsubscribed}.
    *
    * @return {@code subscribed} (default) or {@code unsubscribed}, or {@code null} when unset
@@ -57,7 +46,6 @@ public final class SubscriberRequest {
   public static final class Builder {
 
     private String address;
-    private String name;
     private String status;
 
     private Builder() {}
@@ -70,17 +58,6 @@ public final class SubscriberRequest {
      */
     public Builder address(String address) {
       this.address = address;
-      return this;
-    }
-
-    /**
-     * Sets the display name.
-     *
-     * @param name the display name
-     * @return this builder
-     */
-    public Builder name(String name) {
-      this.name = name;
       return this;
     }
 

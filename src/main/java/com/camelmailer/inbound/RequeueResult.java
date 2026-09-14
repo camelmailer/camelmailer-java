@@ -1,8 +1,12 @@
 package com.camelmailer.inbound;
 
+import com.camelmailer.emails.Email;
+
 /**
  * What a retry or bypass did.
  *
- * @param queued whether the message went back on the delivery queue
+ * @param requeued whether the message went back on the delivery queue; the API names this field
+ *     {@code requeued}
+ * @param message the message as it now stands
  */
-public record RequeueResult(boolean queued) {}
+public record RequeueResult(boolean requeued, Email message) {}

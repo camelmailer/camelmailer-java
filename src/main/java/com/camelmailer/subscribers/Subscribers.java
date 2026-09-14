@@ -40,6 +40,8 @@ public final class Subscribers {
   /**
    * Adds or updates one subscriber. Upserts by address, so calling it twice is safe.
    *
+   * <p>The endpoint takes an address and a status; there is no name field.
+   *
    * @param permalink the stream permalink
    * @param request the subscriber fields
    * @return the stored subscriber

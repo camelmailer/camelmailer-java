@@ -41,9 +41,15 @@ class SubscribersLayoutsTest {
               .subscribers()
               .add(
                   "product-news",
-                  SubscriberRequest.builder().address("ada@example.com").name("Ada").build());
+                  SubscriberRequest.builder()
+                      .address("ada@example.com")
+                      .status("subscribed")
+                      .build());
 
-      assertTrue(server.takeRequest().body().contains("\"address\":\"ada@example.com\""));
+      // The endpoint takes an address and a status; there is no name field.
+      String body = server.takeRequest().body();
+      assertTrue(body.contains("\"address\":\"ada@example.com\""));
+      assertTrue(body.contains("\"status\":\"subscribed\""));
       assertEquals("ada@example.com", subscriber.address());
     }
   }

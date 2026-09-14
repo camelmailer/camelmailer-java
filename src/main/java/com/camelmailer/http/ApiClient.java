@@ -28,7 +28,7 @@ import java.util.Map;
 public final class ApiClient {
 
   /** SDK version, sent in the User-Agent header. Keep in sync with the POM. */
-  public static final String VERSION = "0.2.0";
+  public static final String VERSION = "0.2.1";
 
   private static final ObjectMapper MAPPER =
       new ObjectMapper()
