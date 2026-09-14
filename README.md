@@ -74,6 +74,22 @@ client.emails().sendWithTemplate(
         .build());
 client.emails().sendWithTemplateBatch(List.of(...));
 
+// Retry-safe sends: the same key with the same body returns the first
+// result instead of queuing a second copy, and a different body under the
+// same key is refused with InvalidIdempotentRequest. All four send methods
+// take one.
+client.emails().send(request, "order-" + orderId);
+
+// Broadcast to everyone subscribed to a stream. Recipients past the
+// per-request cap of 1000 come back as skipped, so a larger audience wants
+// a campaign.
+StreamSendResult broadcast = client.emails().sendToStream("newsletter",
+    SendEmailRequest.builder()
+        .from("news@acme.com")
+        .subject("September")
+        .textBody("What shipped this month.")
+        .build());
+
 // Read back
 EmailDetails details = client.emails().get(messageId);   // message + deliveries
 EmailList page = client.emails().list(
@@ -104,10 +120,107 @@ RenderedTemplate preview = client.templates().render("welcome", Map.of("name", "
 
 ```java
 client.streams().list();
-client.streams().create(StreamRequest.builder().name("Receipts").streamType("transactional").build());
+client.streams().create(StreamRequest.builder()
+    .name("Receipts").permalink("receipts").streamType("transactional").build());
 client.streams().get("receipts");
 client.streams().update("receipts", StreamRequest.builder().name("Billing").build());
 client.streams().archive("receipts");
+```
+
+### Campaigns
+
+A campaign is content plus an audience. The two ways to create one behave
+differently, so pick deliberately: `createDraft` writes it and waits,
+`createAndSend` expands it to the stream's subscribers before the call
+returns.
+
+```java
+// Write it and leave it alone. Without a schedule it stays a draft; with
+// one it becomes "scheduled" and the server sends it when due.
+Campaign draft = client.campaigns().createDraft(
+    DraftCampaignRequest.builder()
+        .stream("newsletter")
+        .from("news@acme.com")
+        .name("September")
+        .subject("What shipped")
+        .textBody("Hello.")
+        // .scheduledAt("2026-10-01T08:00:00Z")
+        .build());
+
+// Goes out on the spot, no draft and no schedule.
+client.campaigns().createAndSend("newsletter",
+    SendCampaignRequest.builder()
+        .name("Status update")
+        .from("news@acme.com")
+        .textBody("All clear.")
+        .build());
+
+client.campaigns().list();
+client.campaigns().listForStream("newsletter");
+CampaignDetail detail = client.campaigns().get(draft.id());   // campaign + stats
+
+// scheduledAt schedules; clearSchedule drops it back to a draft. Touching
+// neither leaves the schedule standing, so the two are separate.
+client.campaigns().update(draft.id(),
+    UpdateCampaignRequest.builder().scheduledAt("2026-10-01T08:00:00Z").build());
+client.campaigns().update(draft.id(),
+    UpdateCampaignRequest.builder().clearSchedule().build());
+
+client.campaigns().send(draft.id());      // now, whatever the schedule said
+client.campaigns().cancel(draft.id());
+```
+
+### Subscribers
+
+A broadcast send to an address that is not subscribed is refused, so this
+list is the audience.
+
+```java
+client.subscribers().list("newsletter");
+client.subscribers().add("newsletter",
+    SubscriberRequest.builder().address("ada@example.com").name("Ada").build());
+client.subscribers().importAddresses("newsletter",
+    List.of("ada@example.com", "grace@example.com"));
+client.subscribers().complaint("newsletter", "ada@example.com");  // suppress + unsubscribe
+client.subscribers().remove("newsletter", "ada@example.com");
+```
+
+### Layouts
+
+A layout wraps every template that uses it. `htmlWrapper` has to embed the
+body with `{{{ content }}}`.
+
+```java
+client.layouts().list();
+client.layouts().create(LayoutRequest.builder()
+    .name("Default")
+    .permalink("default")
+    .htmlWrapper("<html><body>{{{ content }}}</body></html>")
+    .build());
+client.layouts().get("default");
+client.layouts().update("default", LayoutRequest.builder().name("Main").build());
+String logoUrl = client.layouts().uploadLogo("default", "data:image/png;base64,...");
+client.layouts().delete("default");
+```
+
+### Inbound and held messages
+
+```java
+InboundList held = client.inbound().list(
+    ListInboundOptions.builder().status("held").build());
+client.inbound().get(55);
+client.inbound().retry(55);    // back on the delivery queue
+client.inbound().bypass(55);   // release past the hold
+```
+
+### Logs
+
+Useful when a send did not arrive and the question is whether the request
+ever reached the API.
+
+```java
+LogList requests = client.logs().list(null, 25);
+List<TagCount> tags = client.logs().tags();
 ```
 
 ### Stats and bounces

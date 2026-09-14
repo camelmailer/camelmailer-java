@@ -13,7 +13,8 @@ import java.util.Deque;
 final class MockServer implements AutoCloseable {
 
   /** A recorded incoming request. */
-  record Recorded(String method, String path, String query, Headers headers, String body) {}
+  record Recorded(
+      String method, String path, String rawPath, String query, Headers headers, String body) {}
 
   private record Stubbed(int status, String body) {}
 
@@ -36,6 +37,9 @@ final class MockServer implements AutoCloseable {
               new Recorded(
                   exchange.getRequestMethod(),
                   exchange.getRequestURI().getPath(),
+                  // The raw path keeps the percent-encoding, which is the
+                  // only place an escaped address can be checked.
+                  exchange.getRequestURI().getRawPath(),
                   exchange.getRequestURI().getRawQuery(),
                   exchange.getRequestHeaders(),
                   body));

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -25,6 +26,9 @@ import java.util.Map;
  * <p>Not intended for direct use by SDK consumers; the surface may change without notice.
  */
 public final class ApiClient {
+
+  /** SDK version, sent in the User-Agent header. Keep in sync with the POM. */
+  public static final String VERSION = "0.2.0";
 
   private static final ObjectMapper MAPPER =
       new ObjectMapper()
@@ -78,7 +82,36 @@ public final class ApiClient {
    * @return the {@code data} node of the success envelope
    */
   public JsonNode post(String path, Object body) {
-    return execute(request(path, Map.of()).POST(jsonBody(body)).build());
+    return post(path, body, null);
+  }
+
+  /**
+   * Performs a POST request with an idempotency key.
+   *
+   * <p>The key travels as the {@code Idempotency-Key} header rather than in the body, because the
+   * body is what the server hashes to recognise the same request.
+   *
+   * @param path absolute API path
+   * @param body request body, serialized as JSON; {@code null} sends an empty JSON object
+   * @param idempotencyKey the key, or {@code null} to send none
+   * @return the {@code data} node of the success envelope
+   */
+  public JsonNode post(String path, Object body, String idempotencyKey) {
+    HttpRequest.Builder builder = request(path, Map.of());
+    if (idempotencyKey != null && !idempotencyKey.isEmpty()) {
+      builder = builder.header("Idempotency-Key", idempotencyKey);
+    }
+    return execute(builder.POST(jsonBody(body)).build());
+  }
+
+  /**
+   * Performs a DELETE request.
+   *
+   * @param path absolute API path
+   * @return the {@code data} node of the success envelope
+   */
+  public JsonNode delete(String path) {
+    return execute(request(path, Map.of()).DELETE().build());
   }
 
   /**
@@ -130,6 +163,18 @@ public final class ApiClient {
     return result;
   }
 
+  /**
+   * Creates a mutable JSON object for a request body.
+   *
+   * <p>Needed where a field has to reach the API as an explicit {@code null}: the mapper drops null
+   * properties, but a {@code NullNode} placed here survives.
+   *
+   * @return an empty object node
+   */
+  public ObjectNode newObject() {
+    return MAPPER.createObjectNode();
+  }
+
   private HttpRequest.Builder request(String path, Map<String, String> query) {
     StringBuilder url = new StringBuilder(baseUrl).append(path);
     boolean first = true;
@@ -147,7 +192,7 @@ public final class ApiClient {
         .header("X-Server-API-Key", apiKey)
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")
-        .header("User-Agent", "camelmailer-java/0.1.0");
+        .header("User-Agent", "camelmailer-java/" + VERSION);
   }
 
   private HttpRequest.BodyPublisher jsonBody(Object body) {

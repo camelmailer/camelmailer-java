@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-14
+
+### Added
+
+- `campaigns()`: `createDraft`, `createAndSend`, `list`, `listForStream`,
+  `get`, `getForStream`, `update`, `send`, `cancel`. The two create methods
+  hit different routes: `createDraft` writes the campaign and waits, while
+  `createAndSend` expands it to the stream's subscribers before the call
+  returns.
+- `subscribers()`: `list`, `add`, `importAddresses`, `complaint`, `remove`.
+- `layouts()`: `list`, `create`, `get`, `update`, `delete`, `uploadLogo`.
+- `inbound()`: `list`, `get`, `retry`, `bypass`.
+- `logs()`: `list`, `tags`.
+- `emails().sendToStream()` for broadcasting to a stream's subscribers.
+- An idempotency-key overload on all four send methods. The key travels as
+  the `Idempotency-Key` header, because the body is what the server hashes
+  to recognise a replay.
+- `StreamRequest` takes a `permalink` and an `archived` flag. Without the
+  permalink the API derives one from the name, which a caller that has to
+  know the permalink up front cannot rely on.
+
 ## [0.1.0] - 2026-07-12
 
 ### Added
@@ -22,5 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dmarc()`: `summary`, `reports`, `report`.
 - Typed, unchecked `CamelMailerException` with stable API error `code` and HTTP `statusCode`.
 
-[Unreleased]: https://github.com/camelmailer/camelmailer-java/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/camelmailer/camelmailer-java/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/camelmailer/camelmailer-java/releases/tag/v0.2.0
 [0.1.0]: https://github.com/camelmailer/camelmailer-java/releases/tag/v0.1.0

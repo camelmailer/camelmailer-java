@@ -1,11 +1,16 @@
 package com.camelmailer;
 
 import com.camelmailer.bounces.Bounces;
+import com.camelmailer.campaigns.Campaigns;
 import com.camelmailer.dmarc.Dmarc;
 import com.camelmailer.emails.Emails;
 import com.camelmailer.http.ApiClient;
+import com.camelmailer.inbound.Inbound;
+import com.camelmailer.layouts.Layouts;
+import com.camelmailer.logs.Logs;
 import com.camelmailer.stats.Stats;
 import com.camelmailer.streams.Streams;
+import com.camelmailer.subscribers.Subscribers;
 import com.camelmailer.templates.Templates;
 import java.net.http.HttpClient;
 
@@ -47,6 +52,11 @@ public final class CamelMailer {
   private final Stats stats;
   private final Bounces bounces;
   private final Dmarc dmarc;
+  private final Campaigns campaigns;
+  private final Subscribers subscribers;
+  private final Layouts layouts;
+  private final Inbound inbound;
+  private final Logs logs;
 
   /**
    * Creates a client for the CamelMailer cloud ({@value #DEFAULT_BASE_URL}).
@@ -70,6 +80,11 @@ public final class CamelMailer {
     this.stats = new Stats(api);
     this.bounces = new Bounces(api);
     this.dmarc = new Dmarc(api);
+    this.campaigns = new Campaigns(api);
+    this.subscribers = new Subscribers(api);
+    this.layouts = new Layouts(api);
+    this.inbound = new Inbound(api);
+    this.logs = new Logs(api);
   }
 
   /**
@@ -127,7 +142,52 @@ public final class CamelMailer {
   }
 
   /**
-   * DMARC compliance reporting.
+   * Broadcast campaigns.
+   *
+   * @return the campaigns service
+   */
+  public Campaigns campaigns() {
+    return campaigns;
+  }
+
+  /**
+   * Opt-in subscribers of a broadcast stream.
+   *
+   * @return the subscribers service
+   */
+  public Subscribers subscribers() {
+    return subscribers;
+  }
+
+  /**
+   * Template layouts.
+   *
+   * @return the layouts service
+   */
+  public Layouts layouts() {
+    return layouts;
+  }
+
+  /**
+   * Inbound and held messages.
+   *
+   * @return the inbound service
+   */
+  public Inbound inbound() {
+    return inbound;
+  }
+
+  /**
+   * The server's request log and tag index.
+   *
+   * @return the logs service
+   */
+  public Logs logs() {
+    return logs;
+  }
+
+  /**
+   * DMARC monitoring.
    *
    * @return the DMARC service
    */

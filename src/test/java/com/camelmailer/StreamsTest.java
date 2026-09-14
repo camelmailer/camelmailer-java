@@ -39,13 +39,21 @@ class StreamsTest {
           server
               .client()
               .streams()
-              .create(StreamRequest.builder().name("Receipts").streamType("transactional").build());
+              .create(
+                  StreamRequest.builder()
+                      .name("Receipts")
+                      .streamType("transactional")
+                      .permalink("receipts")
+                      .build());
 
       MockServer.Recorded recorded = server.takeRequest();
       assertEquals("POST", recorded.method());
       assertEquals("/api/v2/server/streams", recorded.path());
       assertTrue(recorded.body().contains("\"name\":\"Receipts\""));
       assertTrue(recorded.body().contains("\"stream_type\":\"transactional\""));
+      // Without this the API derives a permalink from the name, which a
+      // caller that has to know the permalink up front cannot rely on.
+      assertTrue(recorded.body().contains("\"permalink\":\"receipts\""));
       assertEquals(2L, stream.id());
     }
   }
